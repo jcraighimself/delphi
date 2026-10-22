@@ -1,0 +1,2 @@
+bme680==2.0.0    # Pimoroni BME680/BME688 driver (supports BME688 gas readings)
+smbus2>=0.5      # plain I2C access; also used to talk to the SCD-41 directly
