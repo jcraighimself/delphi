@@ -136,7 +136,8 @@ The mic is always listening for music. Keep clips short (~5–10 s), process in 
 ## Dev workflow
 
 - Code lives on GitHub (`jcraighimself/delphi`). Edit on the PC, push, then `git pull` on the Pi. The Pi's clone is at `~/delphi` (user `delphiadmin`). VS Code **Remote – SSH** to `delphi.local` is an alternative for editing directly on the Pi.
-- Run the collector manually on the Pi: `cd ~/delphi && source .venv/bin/activate && python collector/main.py --once --print`.
+- The collector runs as the `delphi-collector` systemd service. Check it with `systemctl status delphi-collector`, follow its log with `journalctl -u delphi-collector -f`, and restart it after a `git pull` with `sudo systemctl restart delphi-collector`.
+- Run the collector manually on the Pi (stop the service first, or both will read the sensors): `cd ~/delphi && source .venv/bin/activate && python collector/main.py --once --print`.
 - Server: deployed to Railway from the `server/` folder of the GitHub repo.
 - Phase 2: develop the e-ink layout locally with `--fake`, and preview at `http://delphi.local:8000` (or the local preview server).
 - Useful checks: `i2cdetect -y 1` (sensors), `arecord -l` (mic), `vcgencmd get_throttled` (power problems; anything other than `0x0` means a power or heat issue).
@@ -145,11 +146,11 @@ The mic is always listening for music. Keep clips short (~5–10 s), process in 
 
 Phase 1: online dashboard
 1. ✅ Read both sensors and print values (`collector/main.py --once --print`).
-2. Server on Railway: receive readings (API key) and store them in SQLite.
-3. Collector sends a reading every 5 minutes, with the offline queue.
+2. ✅ Server on Railway: receive readings (API key) and store them in SQLite.
+3. ✅ Collector sends a reading every 5 minutes, with the offline queue.
 4. Dashboard website: password login, latest values, day/week/month charts, stale-data warning.
 5. Monthly update/restart reminders on the dashboard.
-6. Collector as a systemd service, logging, read-only-friendly setup to protect the SD card.
+6. Collector as a systemd service (`collector/delphi-collector.service`; done), logging, read-only-friendly setup to protect the SD card.
 
 Phase 2: e-ink display
 7. Fake-data dashboard rendering to PNG + e-ink simulation, with browser preview.

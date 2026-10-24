@@ -1,0 +1,25 @@
+# systemd service: starts the collector on boot and restarts it if it crashes.
+# Install on the Pi with:
+#   sudo cp collector/delphi-collector.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now delphi-collector
+# Re-run the cp and daemon-reload lines whenever this file changes.
+
+[Unit]
+Description=Delphi sensor collector
+# Wait for the network, and for the clock to be set from the internet
+# (the Pi has no clock battery, so it boots with a stale time).
+Wants=network-online.target time-sync.target
+After=network-online.target time-sync.target
+
+[Service]
+User=delphiadmin
+WorkingDirectory=/home/delphiadmin/delphi
+ExecStart=/home/delphiadmin/delphi/.venv/bin/python collector/main.py
+Restart=always
+RestartSec=10
+# Send log lines to the journal immediately instead of buffering them.
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target
