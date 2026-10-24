@@ -1,0 +1,2 @@
+flask>=3.0      # web framework
+gunicorn>=23.0  # runs the app on Railway (Linux only; locally use `python main.py`)
