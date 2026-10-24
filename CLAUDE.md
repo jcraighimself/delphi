@@ -80,6 +80,7 @@ delphi/
   collector/             # runs on the Pi
     main.py              # every 5 min: read sensors → send to server (queue if offline)
     sensors.py           # BME688 + SCD-41; returns None per field on failure
+    uploader.py          # POSTs readings; local queue.db while the server is unreachable
   server/                # runs on Railway
                          # receives readings, stores them, serves the dashboard
 ```
