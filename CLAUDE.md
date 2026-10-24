@@ -88,7 +88,17 @@ delphi/
 - **Upload:** the collector POSTs each reading as JSON to the server with a secret API key in a header. The key lives in `.env` on the Pi and as a Railway variable; it is never committed.
 - **Timestamps** are set by the Pi, in UTC.
 - **Offline queue:** if a send fails, the reading is saved to a small local SQLite file (git-ignored by `*.db`) and resent oldest-first later, so charts have no gaps. It's written to only when sending fails, to spare the SD card.
-- **Dashboard:** a single password login; latest values (shown as "—" when missing), charts for the last day/week/month, and a warning if no reading has arrived for more than 15 minutes.
+- **Dashboard:** a single password login (signed session cookie, 30 days); latest values (shown as "—" when missing), charts for the last day/week/month, and a warning if no reading has arrived for more than 15 minutes. Railway variables: `DELPHI_API_KEY`, `DASHBOARD_PASSWORD`, `SECRET_KEY` (signs the login cookie), `DATABASE_PATH=/data/delphi.db`. Live at `https://delphi-production-8d32.up.railway.app` (custom domain `delphi.jcraighimself.com` pending its TLS certificate).
+  - Flask templates in `server/templates/`, plain CSS in `server/static/style.css`, charts drawn by **Chart.js** (CDN) in `server/static/dashboard.js` from JSON the server embeds in the page. No Node/build step.
+  - Chart points are averaged server-side: raw 5-min readings for Day, 30-min for Week, 2-hour for Month. A gap of more than 3 points inserts a null so the line breaks where the Pi was offline. Axis ticks are computed server-side on round Eastern times.
+
+### Dashboard design decisions (the owner's calls; don't undo them without asking)
+
+- **Style:** same family as the owner's other projects in `../alexandria`, `../pergamum`, `../lyceum`: dark slate background, cards with 1px borders and 10px radius, DM Sans body + Josefin Sans display. Each project has its own accent; **Delphi's is violet `#a78bfa`**.
+- **Time zone:** the database stores UTC; everything shown is **America/New_York** (EST/EDT automatically).
+- **Units:** **°C and hPa** (metric). Gas resistance is shown in kΩ.
+- **One Day / Week / Month toggle** in the header changes every chart together.
+- CO₂ tile is coloured green (≤800 ppm, "Fresh"), yellow (≤1000, "Getting stuffy"), red (>1000, "Open a window"); the CO₂ chart has a dashed red line at 1000.
 - **Maintenance reminders:** the Pi includes its last boot time and last `apt` upgrade time (from `/var/log/apt/history.log`) with its uploads. When either is more than ~30 days old, the dashboard shows a banner reminding the owner to update (`sudo apt update && sudo apt full-upgrade`) and/or restart (`sudo reboot`). Dashboard only; no email or push notifications for now.
 
 **Expected cost:** the server should use about $2/month of Railway usage (~150 MB RAM, near-idle CPU, 1 GB volume; readings take ~10–20 MB/year). Hobby includes $5/month of usage, shared with the other three projects, so the real cost is whatever pushes the total past that credit: at most ~$2/month extra.
@@ -148,7 +158,7 @@ Phase 1: online dashboard
 1. ✅ Read both sensors and print values (`collector/main.py --once --print`).
 2. ✅ Server on Railway: receive readings (API key) and store them in SQLite.
 3. ✅ Collector sends a reading every 5 minutes, with the offline queue.
-4. Dashboard website: password login, latest values, day/week/month charts, stale-data warning.
+4. ✅ Dashboard website: password login, latest values, day/week/month charts, stale-data warning.
 5. Monthly update/restart reminders on the dashboard.
 6. Collector as a systemd service (`collector/delphi-collector.service`; done), logging, read-only-friendly setup to protect the SD card.
 

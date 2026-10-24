@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Delphi · Sign in{% endblock %}
+{% block body %}
+<div class="login-page">
+  <div class="login-wrap">
+    <div class="login-logo">
+      <span class="login-title">Delphi</span>
+      <span class="login-subtitle">Room conditions</span>
+    </div>
+    <div class="login-card">
+      <div class="login-card-label">Enter password</div>
+      <form method="post" class="login-form">
+        <input type="password" name="password" placeholder="Password" autofocus required
+               class="login-input{% if error %} login-input--error{% endif %}">
+        {% if error %}<div class="login-error">{{ error }}</div>{% endif %}
+        <button type="submit" class="login-btn">Sign in</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

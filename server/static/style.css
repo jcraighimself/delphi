@@ -1,0 +1,381 @@
+/* Delphi dashboard. Same family as Alexandria / Pergamum / Lyceum, with a violet accent. */
+
+:root {
+  --bg: #1e2229;
+  --bg-elevated: #252b33;
+  --bg-card: #1a1f26;
+  --border: #2e3540;
+  --border-hover: #3d4b5c;
+  --accent: #a78bfa;
+  --accent-hover: #c4b5fd;
+  --accent-dim: rgba(167, 139, 250, 0.15);
+  --text: #f1f8f0;
+  --text-muted: #7a8899;
+  --text-dim: #4a5568;
+  --red: #e05252;
+  --yellow: #f0c040;
+  --green: #4caf82;
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-lg: 14px;
+  --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.5);
+  --font-display: 'Josefin Sans', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --header-h: 56px;
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ── HEADER ─────────────────────────────── */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  height: var(--header-h);
+  background: #1b2128;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  /* Line the header up with the page content below (max 1200px wide, centred). */
+  padding: 0 max(56px, calc((100% - 1200px) / 2 + 56px));
+}
+
+.logo {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--accent);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.range-toggle {
+  display: flex;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 2px;
+}
+
+.range-btn {
+  padding: 4px 12px;
+  border-radius: 4px;
+  color: var(--text-muted);
+  font-weight: 500;
+  transition: color 0.2s, background 0.2s;
+}
+
+.range-btn:hover {
+  color: var(--text);
+}
+
+.range-btn.active {
+  background: var(--accent-dim);
+  color: var(--accent);
+}
+
+.sign-out {
+  color: var(--text-muted);
+  transition: color 0.2s;
+}
+
+.sign-out:hover {
+  color: var(--text);
+}
+
+/* ── PAGE ───────────────────────────────── */
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 56px 56px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.banner {
+  background: rgba(240, 192, 64, 0.12);
+  border: 1px solid var(--yellow);
+  border-radius: var(--radius);
+  color: var(--yellow);
+  font-weight: 500;
+  padding: 12px 16px;
+}
+
+.last-seen {
+  color: var(--text-muted);
+}
+
+/* ── LATEST READINGS ────────────────────── */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+}
+
+.tile {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  padding: 16px 20px;
+}
+
+.tile-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+}
+
+.tile-value {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.3;
+  margin-top: 6px;
+}
+
+.tile-unit {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-left: 4px;
+}
+
+.tile-note {
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.tile--good .tile-value,
+.tile--good .tile-note {
+  color: var(--green);
+}
+
+.tile--fair .tile-value,
+.tile--fair .tile-note {
+  color: var(--yellow);
+}
+
+.tile--poor {
+  border-color: var(--red);
+}
+
+.tile--poor .tile-value,
+.tile--poor .tile-note {
+  color: var(--red);
+}
+
+/* ── CHARTS ─────────────────────────────── */
+.charts {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  padding: 20px;
+  min-width: 0; /* lets the chart shrink inside the grid */
+}
+
+.chart-card--wide {
+  grid-column: 1 / -1;
+}
+
+.chart-card-title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  margin-bottom: 12px;
+}
+
+.chart-card-unit {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-left: 4px;
+}
+
+.chart-card-body {
+  position: relative;
+  height: 220px;
+}
+
+.chart-card--wide .chart-card-body {
+  height: 260px;
+}
+
+/* ── LOGIN ──────────────────────────────── */
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-wrap {
+  width: 100%;
+  max-width: 380px;
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+}
+
+.login-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.login-title {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--accent);
+}
+
+.login-subtitle {
+  color: var(--text-muted);
+}
+
+.login-card {
+  width: 100%;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.login-card-label {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-dim);
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.login-input {
+  height: 40px;
+  width: 100%;
+  background: var(--bg);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 14px;
+  padding: 0 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.login-input:focus {
+  border-color: var(--accent);
+}
+
+.login-input--error {
+  border-color: var(--red);
+}
+
+.login-error {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--red);
+}
+
+.login-btn {
+  height: 40px;
+  background: var(--accent);
+  color: #1a1f26;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.login-btn:hover {
+  background: var(--accent-hover);
+}
+
+/* ── SMALLER SCREENS ────────────────────── */
+@media (max-width: 1000px) {
+  .tiles {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 720px) {
+  .header,
+  .page {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .header-actions {
+    gap: 12px;
+  }
+
+  .tiles {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .charts {
+    grid-template-columns: 1fr;
+  }
+}
