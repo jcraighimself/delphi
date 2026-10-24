@@ -1,4 +1,22 @@
-// Draws one line chart per metric from the JSON the server put in the page.
+// Draws one line chart per metric from the JSON the server put in the page,
+// and reloads the page when a new reading arrives.
+
+// Every 30 seconds, ask the server for the time of its newest reading and reload
+// if it's newer than the one on screen. Also reload at least every 5 minutes, so
+// "minutes ago" and the no-reading warning stay current while the Pi is quiet.
+const shownReading = document.querySelector('.page').dataset.latest
+const loadedAt = Date.now()
+setInterval(async () => {
+  if (Date.now() - loadedAt > 5 * 60 * 1000) return location.reload()
+  try {
+    const response = await fetch('/api/latest')
+    if (response.redirected) return location.reload() // login expired: show the login page
+    const { recorded_at } = await response.json()
+    if ((recorded_at ?? '') !== shownReading) location.reload()
+  } catch {
+    // Server unreachable for a moment; try again next time.
+  }
+}, 30 * 1000)
 
 const data = JSON.parse(document.getElementById('chart-data').textContent)
 

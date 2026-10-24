@@ -46,6 +46,7 @@ class SCD41:
     STOP_PERIODIC = 0x3F86
     DATA_READY = 0xE4B8
     READ_MEASUREMENT = 0xEC05
+    SET_AMBIENT_PRESSURE = 0xE000
 
     def __init__(self, bus, address=SCD41_ADDRESS):
         self.bus = bus
@@ -59,6 +60,20 @@ class SCD41:
 
     def _send(self, command):
         self.bus.i2c_rdwr(i2c_msg.write(self.address, [command >> 8, command & 0xFF]))
+
+    def _send_with_word(self, command, word):
+        """Send a command followed by one 16-bit argument and its CRC byte."""
+        hi, lo = word >> 8, word & 0xFF
+        self.bus.i2c_rdwr(i2c_msg.write(self.address, [command >> 8, command & 0xFF, hi, lo, _crc8(hi, lo)]))
+        time.sleep(0.005)
+
+    def set_ambient_pressure(self, pressure_hpa):
+        """Tell the sensor the real air pressure; its CO2 reading depends on it.
+
+        Without this it assumes sea-level pressure. Allowed while measuring, and
+        applies from the next measurement on.
+        """
+        self._send_with_word(self.SET_AMBIENT_PRESSURE, round(pressure_hpa))
 
     def _read_words(self, command, count):
         """Send a command, then read back `count` 16-bit words (each followed by a CRC byte)."""
@@ -122,7 +137,7 @@ class Sensors:
     def read(self):
         reading = dict.fromkeys(FIELDS)
         reading.update(self._read_bme688())
-        reading.update(self._read_scd41())
+        reading.update(self._read_scd41(reading["pressure_hpa"]))
         return reading
 
     def close(self):
@@ -157,12 +172,15 @@ class Sensors:
             self._bme = None  # reconnect next time
             return {}
 
-    def _read_scd41(self):
+    def _read_scd41(self, pressure_hpa):
+        """Read the SCD-41, first giving it the BME688's pressure (None if that failed)."""
         try:
             if self._scd is None:
                 if self._bus is None:
                     self._bus = SMBus(I2C_BUS)
                 self._scd = SCD41(self._bus)
+            if pressure_hpa is not None:
+                self._scd.set_ambient_pressure(pressure_hpa)
             co2, temperature, humidity = self._scd.read()
             return {
                 "co2_ppm": co2,

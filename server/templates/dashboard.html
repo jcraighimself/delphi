@@ -1,7 +1,5 @@
 {% extends "base.html" %}
 {% block head %}
-  <!-- Reload every 5 minutes, when the Pi sends a new reading. -->
-  <meta http-equiv="refresh" content="300">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
   <script src="{{ url_for('static', filename='dashboard.js') }}" defer></script>
 {% endblock %}
@@ -18,7 +16,7 @@
   </div>
 </header>
 
-<main class="page">
+<main class="page" data-latest="{{ latest_recorded_at }}">
   {% if not last_seen %}
     <div class="banner">No readings yet. Is the collector running on the Pi?</div>
   {% elif stale %}

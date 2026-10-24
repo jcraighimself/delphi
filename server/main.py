@@ -332,6 +332,7 @@ def dashboard():
 
     return render_template(
         "dashboard.html",
+        latest_recorded_at=latest["recorded_at"] if latest else "",
         tiles=latest_tiles(latest),
         last_seen=last_seen,
         stale=stale,
@@ -339,6 +340,14 @@ def dashboard():
         ranges=list(RANGES),
         charts=chart_data(db, range_name),
     )
+
+
+@app.get("/api/latest")
+@login_required
+def latest_reading_time():
+    """When the newest reading was taken. The dashboard checks this to know when to reload."""
+    (recorded_at,) = get_db().execute("SELECT MAX(recorded_at) FROM readings").fetchone()
+    return jsonify(recorded_at=recorded_at)
 
 
 @app.get("/health")
